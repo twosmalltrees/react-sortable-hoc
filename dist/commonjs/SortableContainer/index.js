@@ -553,15 +553,14 @@ function sortableContainer(WrappedComponent) {
         var prevIndex = this.newIndex;
         this.newIndex = null;
 
+        var nodeStyleUpdates = [];
+
         for (var i = 0, len = nodes.length; i < len; i++) {
           var node = nodes[i].node;
 
           var index = node.sortableInfo.index;
-
-          var _props$getHelperDimen = this.props.getHelperDimensions(),
-              width = _props$getHelperDimen.width,
-              height = _props$getHelperDimen.height;
-
+          var width = node.offsetWidth;
+          var height = node.offsetHeight;
           var offset = {
             width: this.width > width ? width / 2 : this.width / 2,
             height: this.height > height ? height / 2 : this.height / 2
@@ -605,7 +604,7 @@ function sortableContainer(WrappedComponent) {
           }
 
           if (transitionDuration) {
-            node.style[_utils.vendorPrefix + 'TransitionDuration'] = transitionDuration + 'ms';
+            nodeStyleUpdates.push({ node: node, property: _utils.vendorPrefix + 'TransitionDuration', value: transitionDuration + 'ms' });
           }
 
           if (this.axis.x) {
@@ -660,8 +659,17 @@ function sortableContainer(WrappedComponent) {
               }
             }
           }
-          node.style[_utils.vendorPrefix + 'Transform'] = 'translate3d(' + translate.x + 'px,' + translate.y + 'px,0)';
+
+          nodeStyleUpdates.push({ node: node, property: _utils.vendorPrefix + 'Transform', value: 'translate3d(' + translate.x + 'px,' + translate.y + 'px,0)' });
         }
+
+        nodeStyleUpdates.forEach(function (_ref) {
+          var node = _ref.node,
+              property = _ref.property,
+              value = _ref.value;
+
+          node.style[property] = value;
+        });
 
         if (this.newIndex == null) {
           this.newIndex = this.index;
@@ -725,8 +733,8 @@ function sortableContainer(WrappedComponent) {
     },
     lockToContainerEdges: false,
     lockOffset: '50%',
-    getHelperDimensions: function getHelperDimensions(_ref) {
-      var node = _ref.node;
+    getHelperDimensions: function getHelperDimensions(_ref2) {
+      var node = _ref2.node;
       return {
         width: node.offsetWidth,
         height: node.offsetHeight
